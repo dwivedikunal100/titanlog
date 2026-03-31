@@ -124,6 +124,49 @@ class _PhotosTabState extends ConsumerState<PhotosTab> {
     );
   }
 
+  Future<void> _deletePhoto(ProgressPhoto photo) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Photo?'),
+        content: const Text('This action cannot be undone and will remove the image from your device.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        final dao = ref.read(photoDaoProvider);
+        await dao.deletePhoto(photo.id);
+        
+        final file = File(photo.imagePath);
+        if (await file.exists()) {
+          await file.delete();
+        }
+        
+        if (photo.maskImagePath != null) {
+          final maskFile = File(photo.maskImagePath!);
+          if (await maskFile.exists()) {
+            await maskFile.delete();
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error deleting photo: $e')));
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final photosAsync = ref.watch(progressPhotosProvider);
@@ -173,6 +216,20 @@ class _PhotosTabState extends ConsumerState<PhotosTab> {
                         child: Text(
                           DateFormat('MMM d, yyyy').format(photo.createdAt),
                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: Material(
+                        color: Colors.black45,
+                        shape: const CircleBorder(),
+                        child: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.white, size: 20),
+                          onPressed: () => _deletePhoto(photo),
+                          constraints: const BoxConstraints(),
+                          padding: const EdgeInsets.all(8),
                         ),
                       ),
                     ),

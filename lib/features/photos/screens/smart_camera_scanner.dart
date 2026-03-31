@@ -215,7 +215,7 @@ class _SmartCameraScannerState extends ConsumerState<SmartCameraScanner> {
                    right: 0,
                    child: Center(
                      child: GestureDetector(
-                       onTap: isAligned ? _takePhoto : null,
+                       onTap: _takePhoto,
                        child: AnimatedContainer(
                          duration: const Duration(milliseconds: 200),
                          width: 80,
