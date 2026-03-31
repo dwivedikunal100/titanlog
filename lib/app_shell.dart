@@ -3,7 +3,7 @@ import 'package:titanlog/core/theme/app_colors.dart';
 import 'package:titanlog/core/utils/haptic_utils.dart';
 import 'package:titanlog/features/dashboard/screens/dashboard_screen.dart';
 import 'package:titanlog/features/workout/screens/workout_screen.dart';
-import 'package:titanlog/features/exercises/screens/exercise_library_screen.dart';
+import 'package:titanlog/features/history/screens/history_screen.dart';
 import 'package:titanlog/features/analytics/screens/analytics_screen.dart';
 import 'package:titanlog/features/settings/screens/settings_screen.dart';
 
@@ -20,7 +20,7 @@ class _AppShellState extends State<AppShell> {
   final _pages = const [
     DashboardScreen(),
     WorkoutScreen(),
-    ExerciseLibraryScreen(),
+    HistoryScreen(),
     AnalyticsScreen(),
     SettingsScreen(),
   ];
@@ -66,10 +66,10 @@ class _AppShellState extends State<AppShell> {
               label: 'Workout',
             ),
             NavigationDestination(
-              icon: Icon(Icons.list_alt_outlined),
+              icon: Icon(Icons.history_outlined),
               selectedIcon:
-                  Icon(Icons.list_alt, color: AppColors.primary),
-              label: 'Exercises',
+                  Icon(Icons.history, color: AppColors.primary),
+              label: 'History',
             ),
             NavigationDestination(
               icon: Icon(Icons.bar_chart_outlined),

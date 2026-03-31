@@ -108,6 +108,23 @@ class WorkoutDao extends DatabaseAccessor<AppDatabase>
     return row.read(count) ?? 0;
   }
 
+  Future<void> updateExerciseOrder(
+    int workoutId,
+    List<int> orderedWorkoutExerciseIds,
+  ) async {
+    await batch((b) {
+      for (int i = 0; i < orderedWorkoutExerciseIds.length; i++) {
+        b.update(
+          workoutExercises,
+          WorkoutExercisesCompanion(
+            orderIndex: Value(i),
+          ),
+          where: (t) => t.id.equals(orderedWorkoutExerciseIds[i]),
+        );
+      }
+    });
+  }
+
   Future<int> removeExerciseFromWorkout(int workoutExerciseId) {
     return (delete(workoutExercises)
           ..where((we) => we.id.equals(workoutExerciseId)))

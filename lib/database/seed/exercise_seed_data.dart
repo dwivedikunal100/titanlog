@@ -233,5 +233,45 @@ class ExerciseSeedData {
     ['Kettlebell Swing', 'full_body', 'glutes', 'kettlebell'],
     ['Kettlebell Turkish Get-Up', 'full_body', 'core', 'kettlebell'],
     ['Kettlebell Clean and Press', 'full_body', null, 'kettlebell'],
+
+    // ── ADVANCED CALISTHENICS (8) ──────────────────────────────────────────
+    ['Muscle-Up', 'back', 'triceps', 'bodyweight'],
+    ['Front Lever', 'back', 'core', 'bodyweight'],
+    ['Back Lever', 'back', 'core', 'bodyweight'],
+    ['Human Flag', 'core', 'shoulders', 'bodyweight'],
+    ['Planche', 'shoulders', 'core', 'bodyweight'],
+    ['Pistol Squat', 'legs', 'glutes', 'bodyweight'],
+    ['Dragon Flag', 'core', 'back', 'bodyweight'],
+    ['L-Sit', 'core', 'triceps', 'bodyweight'],
+
+    // ── OLYMPIC LIFTING (8) ──────────────────────────────────────────
+    ['Snatch Pull', 'back', 'legs', 'barbell'],
+    ['Clean Pull', 'back', 'legs', 'barbell'],
+    ['Split Jerk', 'shoulders', 'legs', 'barbell'],
+    ['Push Jerk', 'shoulders', 'triceps', 'barbell'],
+    ['Power Clean', 'full_body', null, 'barbell'],
+    ['Power Snatch', 'full_body', null, 'barbell'],
+    ['Hang Clean', 'full_body', null, 'barbell'],
+    ['Overhead Squat (Olympic)', 'legs', 'core', 'barbell'],
+
+    // ── STRONGMAN / FUNCTIONAL (10) ──────────────────────────────────────────
+    ['Yoke Walk', 'full_body', 'legs', 'machine'],
+    ['Farmer Carry', 'forearms', 'core', 'dumbbell'],
+    ['Log Press', 'shoulders', 'triceps', 'barbell'],
+    ['Atlas Stone Load', 'back', 'legs', 'machine'],
+    ['Sled Push', 'legs', 'cardio', 'machine'],
+    ['Sled Pull', 'back', 'cardio', 'machine'],
+    ['Tire Flip', 'full_body', 'legs', 'machine'],
+    ['Sandbag Carry', 'core', 'back', 'machine'],
+    ['Battle Ropes', 'shoulders', 'cardio', 'cable'],
+    ['Box Jump', 'legs', 'cardio', 'bodyweight'],
+
+    // ── BAND & MOBILITY (6) ──────────────────────────────────────────
+    ['Band Pull-Apart', 'back', 'shoulders', 'cable'],
+    ['Banded Face Pull', 'back', 'shoulders', 'cable'],
+    ['Banded Glute Bridge', 'glutes', null, 'cable'],
+    ['Banded Squat', 'legs', 'glutes', 'cable'],
+    ['Cuban Press', 'shoulders', null, 'dumbbell'],
+    ['Jefferson Curl', 'back', 'hamstrings', 'barbell'],
   ];
 }

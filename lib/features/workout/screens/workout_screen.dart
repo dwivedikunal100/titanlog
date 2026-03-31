@@ -88,16 +88,33 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                 return _buildEmptyWorkout(context, activeWorkout.id);
               }
 
-              return ListView.builder(
+              return ReorderableListView.builder(
                 padding: const EdgeInsets.only(
                     left: 16, right: 16, top: 8, bottom: 120),
                 itemCount: exercises.length + 1,
+                onReorder: (oldIndex, newIndex) async {
+                  if (newIndex > oldIndex) newIndex -= 1;
+                  // Don't allow reordering the "Add Exercise" button
+                  if (oldIndex == exercises.length || newIndex == exercises.length) return;
+                  
+                  final list = List<WorkoutExerciseWithDetails>.from(exercises);
+                  final item = list.removeAt(oldIndex);
+                  list.insert(newIndex, item);
+
+                  final orderedIds = list.map((e) => e.workoutExercise.id).toList();
+                  await ref.read(workoutDaoProvider).updateExerciseOrder(activeWorkout.id, orderedIds);
+                  ref.invalidate(workoutExercisesProvider(activeWorkout.id));
+                },
                 itemBuilder: (context, index) {
                   if (index == exercises.length) {
-                    return _buildAddExerciseButton(
-                        context, activeWorkout.id);
+                    return SizedBox(
+                      key: const ValueKey('add_exercise_button'),
+                      child: _buildAddExerciseButton(context, activeWorkout.id),
+                    );
                   }
                   return _ExerciseCard(
+                    key: ValueKey(exercises[index].workoutExercise.id),
+                    index: index,
                     workoutExercise: exercises[index],
                     workoutId: activeWorkout.id,
                   );
@@ -308,8 +325,11 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
 class _ExerciseCard extends ConsumerWidget {
   final WorkoutExerciseWithDetails workoutExercise;
   final int workoutId;
+  final int index;
 
   const _ExerciseCard({
+    super.key,
+    required this.index,
     required this.workoutExercise,
     required this.workoutId,
   });
@@ -352,6 +372,13 @@ class _ExerciseCard extends ConsumerWidget {
                   child: Text(
                     exercise.name,
                     style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                ReorderableDragStartListener(
+                  index: index,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Icon(Icons.drag_indicator, color: AppColors.onSurfaceDim),
                   ),
                 ),
                 PopupMenuButton<String>(

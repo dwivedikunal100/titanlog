@@ -214,18 +214,23 @@ class _VolumeChart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final now = DateTime.now();
+    final today = DateTime.now();
+    final now = DateTime(today.year, today.month, today.day, 23, 59, 59);
     DateTime? startDate;
 
     switch (timeRange) {
       case AnalyticsTimeRange.week:
         startDate = now.subtract(const Duration(days: 7));
+        break;
       case AnalyticsTimeRange.month:
         startDate = now.subtract(const Duration(days: 30));
+        break;
       case AnalyticsTimeRange.threeMonths:
         startDate = now.subtract(const Duration(days: 90));
+        break;
       case AnalyticsTimeRange.allTime:
         startDate = null;
+        break;
     }
 
     final params = VolumeQueryParams(

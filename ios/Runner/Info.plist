@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>TitanLog requires access to your camera to take progress photos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>TitanLog requires access to your photo library to select progress photos.</string>
 </dict>
 </plist>
