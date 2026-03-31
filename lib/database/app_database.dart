@@ -26,7 +26,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'titanlog_db');
@@ -50,6 +50,10 @@ class AppDatabase extends _$AppDatabase {
         if (from < 4) {
           await m.createTable(routines);
           await m.createTable(routineExercises);
+        }
+        if (from < 5) {
+          await m.addColumn(progressPhotos, progressPhotos.maskImagePath);
+          await m.addColumn(progressPhotos, progressPhotos.poseDataJson);
         }
       },
     );

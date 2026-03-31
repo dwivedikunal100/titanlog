@@ -7,4 +7,9 @@ class ProgressPhotos extends Table {
   DateTimeColumn get createdAt => dateTime()();
   TextColumn get notes => text().nullable()();
   RealColumn get bodyWeight => real().nullable()(); // Optional tracking feature
+  
+  // Storage for Ghost Image Mask overlay
+  TextColumn get maskImagePath => text().nullable()();
+  // JSON array backing for the Skeleton layout
+  TextColumn get poseDataJson => text().nullable()();
 }

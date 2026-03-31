@@ -9,6 +9,7 @@ import 'package:drift/drift.dart' as drift;
 import '../../../core/theme/app_colors.dart';
 import '../providers/photo_providers.dart';
 import '../../../database/app_database.dart';
+import 'smart_camera_scanner.dart';
 
 class PhotosTab extends ConsumerStatefulWidget {
   const PhotosTab({super.key});
@@ -45,6 +46,44 @@ class _PhotosTabState extends ConsumerState<PhotosTab> {
     }
   }
 
+  Future<void> _openSmartCamera() async {
+    final photos = ref.read(progressPhotosProvider).valueOrNull ?? [];
+    final latestPhoto = photos.isNotEmpty ? photos.first : null;
+
+    final result = await Navigator.of(context).push<Map<String, dynamic>>(
+      MaterialPageRoute(
+        builder: (_) => SmartCameraScanner(
+          ghostImagePath: latestPhoto?.maskImagePath,
+          referencePoseJson: latestPhoto?.poseDataJson,
+        ),
+      ),
+    );
+
+    if (result == null) return;
+
+    try {
+      final appDir = await getApplicationDocumentsDirectory();
+      final String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final String savedPath = p.join(appDir.path, fileName);
+
+      await File(result['imagePath']).copy(savedPath);
+
+      final dao = ref.read(photoDaoProvider);
+      await dao.insertPhoto(
+        ProgressPhotosCompanion.insert(
+          imagePath: savedPath,
+          createdAt: DateTime.now(),
+          poseDataJson: drift.Value(result['poseDataJson']),
+          maskImagePath: drift.Value(result['maskImagePath']),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save smart photo: $e')));
+      }
+    }
+  }
+
   void _showImageSourceActionSheet() {
     showModalBottomSheet(
       context: context,
@@ -54,8 +93,17 @@ class _PhotosTabState extends ConsumerState<PhotosTab> {
           child: Wrap(
             children: [
               ListTile(
+                leading: const Icon(Icons.auto_awesome, color: AppColors.primary),
+                title: const Text('Smart Camera (Alignment)'),
+                subtitle: const Text('Ghosting & skeleton tracking'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _openSmartCamera();
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.camera_alt, color: AppColors.primary),
-                title: const Text('Camera'),
+                title: const Text('Basic Camera'),
                 onTap: () {
                   Navigator.of(context).pop();
                   _addPhoto(ImageSource.camera);

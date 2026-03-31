@@ -2266,6 +2266,28 @@ class $ProgressPhotosTable extends ProgressPhotos
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _maskImagePathMeta = const VerificationMeta(
+    'maskImagePath',
+  );
+  @override
+  late final GeneratedColumn<String> maskImagePath = GeneratedColumn<String>(
+    'mask_image_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _poseDataJsonMeta = const VerificationMeta(
+    'poseDataJson',
+  );
+  @override
+  late final GeneratedColumn<String> poseDataJson = GeneratedColumn<String>(
+    'pose_data_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2273,6 +2295,8 @@ class $ProgressPhotosTable extends ProgressPhotos
     createdAt,
     notes,
     bodyWeight,
+    maskImagePath,
+    poseDataJson,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2317,6 +2341,24 @@ class $ProgressPhotosTable extends ProgressPhotos
         bodyWeight.isAcceptableOrUnknown(data['body_weight']!, _bodyWeightMeta),
       );
     }
+    if (data.containsKey('mask_image_path')) {
+      context.handle(
+        _maskImagePathMeta,
+        maskImagePath.isAcceptableOrUnknown(
+          data['mask_image_path']!,
+          _maskImagePathMeta,
+        ),
+      );
+    }
+    if (data.containsKey('pose_data_json')) {
+      context.handle(
+        _poseDataJsonMeta,
+        poseDataJson.isAcceptableOrUnknown(
+          data['pose_data_json']!,
+          _poseDataJsonMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2346,6 +2388,14 @@ class $ProgressPhotosTable extends ProgressPhotos
         DriftSqlType.double,
         data['${effectivePrefix}body_weight'],
       ),
+      maskImagePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mask_image_path'],
+      ),
+      poseDataJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pose_data_json'],
+      ),
     );
   }
 
@@ -2361,12 +2411,16 @@ class ProgressPhoto extends DataClass implements Insertable<ProgressPhoto> {
   final DateTime createdAt;
   final String? notes;
   final double? bodyWeight;
+  final String? maskImagePath;
+  final String? poseDataJson;
   const ProgressPhoto({
     required this.id,
     required this.imagePath,
     required this.createdAt,
     this.notes,
     this.bodyWeight,
+    this.maskImagePath,
+    this.poseDataJson,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2379,6 +2433,12 @@ class ProgressPhoto extends DataClass implements Insertable<ProgressPhoto> {
     }
     if (!nullToAbsent || bodyWeight != null) {
       map['body_weight'] = Variable<double>(bodyWeight);
+    }
+    if (!nullToAbsent || maskImagePath != null) {
+      map['mask_image_path'] = Variable<String>(maskImagePath);
+    }
+    if (!nullToAbsent || poseDataJson != null) {
+      map['pose_data_json'] = Variable<String>(poseDataJson);
     }
     return map;
   }
@@ -2394,6 +2454,12 @@ class ProgressPhoto extends DataClass implements Insertable<ProgressPhoto> {
       bodyWeight: bodyWeight == null && nullToAbsent
           ? const Value.absent()
           : Value(bodyWeight),
+      maskImagePath: maskImagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(maskImagePath),
+      poseDataJson: poseDataJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(poseDataJson),
     );
   }
 
@@ -2408,6 +2474,8 @@ class ProgressPhoto extends DataClass implements Insertable<ProgressPhoto> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       notes: serializer.fromJson<String?>(json['notes']),
       bodyWeight: serializer.fromJson<double?>(json['bodyWeight']),
+      maskImagePath: serializer.fromJson<String?>(json['maskImagePath']),
+      poseDataJson: serializer.fromJson<String?>(json['poseDataJson']),
     );
   }
   @override
@@ -2419,6 +2487,8 @@ class ProgressPhoto extends DataClass implements Insertable<ProgressPhoto> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'notes': serializer.toJson<String?>(notes),
       'bodyWeight': serializer.toJson<double?>(bodyWeight),
+      'maskImagePath': serializer.toJson<String?>(maskImagePath),
+      'poseDataJson': serializer.toJson<String?>(poseDataJson),
     };
   }
 
@@ -2428,12 +2498,18 @@ class ProgressPhoto extends DataClass implements Insertable<ProgressPhoto> {
     DateTime? createdAt,
     Value<String?> notes = const Value.absent(),
     Value<double?> bodyWeight = const Value.absent(),
+    Value<String?> maskImagePath = const Value.absent(),
+    Value<String?> poseDataJson = const Value.absent(),
   }) => ProgressPhoto(
     id: id ?? this.id,
     imagePath: imagePath ?? this.imagePath,
     createdAt: createdAt ?? this.createdAt,
     notes: notes.present ? notes.value : this.notes,
     bodyWeight: bodyWeight.present ? bodyWeight.value : this.bodyWeight,
+    maskImagePath: maskImagePath.present
+        ? maskImagePath.value
+        : this.maskImagePath,
+    poseDataJson: poseDataJson.present ? poseDataJson.value : this.poseDataJson,
   );
   ProgressPhoto copyWithCompanion(ProgressPhotosCompanion data) {
     return ProgressPhoto(
@@ -2444,6 +2520,12 @@ class ProgressPhoto extends DataClass implements Insertable<ProgressPhoto> {
       bodyWeight: data.bodyWeight.present
           ? data.bodyWeight.value
           : this.bodyWeight,
+      maskImagePath: data.maskImagePath.present
+          ? data.maskImagePath.value
+          : this.maskImagePath,
+      poseDataJson: data.poseDataJson.present
+          ? data.poseDataJson.value
+          : this.poseDataJson,
     );
   }
 
@@ -2454,13 +2536,23 @@ class ProgressPhoto extends DataClass implements Insertable<ProgressPhoto> {
           ..write('imagePath: $imagePath, ')
           ..write('createdAt: $createdAt, ')
           ..write('notes: $notes, ')
-          ..write('bodyWeight: $bodyWeight')
+          ..write('bodyWeight: $bodyWeight, ')
+          ..write('maskImagePath: $maskImagePath, ')
+          ..write('poseDataJson: $poseDataJson')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, imagePath, createdAt, notes, bodyWeight);
+  int get hashCode => Object.hash(
+    id,
+    imagePath,
+    createdAt,
+    notes,
+    bodyWeight,
+    maskImagePath,
+    poseDataJson,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2469,7 +2561,9 @@ class ProgressPhoto extends DataClass implements Insertable<ProgressPhoto> {
           other.imagePath == this.imagePath &&
           other.createdAt == this.createdAt &&
           other.notes == this.notes &&
-          other.bodyWeight == this.bodyWeight);
+          other.bodyWeight == this.bodyWeight &&
+          other.maskImagePath == this.maskImagePath &&
+          other.poseDataJson == this.poseDataJson);
 }
 
 class ProgressPhotosCompanion extends UpdateCompanion<ProgressPhoto> {
@@ -2478,12 +2572,16 @@ class ProgressPhotosCompanion extends UpdateCompanion<ProgressPhoto> {
   final Value<DateTime> createdAt;
   final Value<String?> notes;
   final Value<double?> bodyWeight;
+  final Value<String?> maskImagePath;
+  final Value<String?> poseDataJson;
   const ProgressPhotosCompanion({
     this.id = const Value.absent(),
     this.imagePath = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.notes = const Value.absent(),
     this.bodyWeight = const Value.absent(),
+    this.maskImagePath = const Value.absent(),
+    this.poseDataJson = const Value.absent(),
   });
   ProgressPhotosCompanion.insert({
     this.id = const Value.absent(),
@@ -2491,6 +2589,8 @@ class ProgressPhotosCompanion extends UpdateCompanion<ProgressPhoto> {
     required DateTime createdAt,
     this.notes = const Value.absent(),
     this.bodyWeight = const Value.absent(),
+    this.maskImagePath = const Value.absent(),
+    this.poseDataJson = const Value.absent(),
   }) : imagePath = Value(imagePath),
        createdAt = Value(createdAt);
   static Insertable<ProgressPhoto> custom({
@@ -2499,6 +2599,8 @@ class ProgressPhotosCompanion extends UpdateCompanion<ProgressPhoto> {
     Expression<DateTime>? createdAt,
     Expression<String>? notes,
     Expression<double>? bodyWeight,
+    Expression<String>? maskImagePath,
+    Expression<String>? poseDataJson,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2506,6 +2608,8 @@ class ProgressPhotosCompanion extends UpdateCompanion<ProgressPhoto> {
       if (createdAt != null) 'created_at': createdAt,
       if (notes != null) 'notes': notes,
       if (bodyWeight != null) 'body_weight': bodyWeight,
+      if (maskImagePath != null) 'mask_image_path': maskImagePath,
+      if (poseDataJson != null) 'pose_data_json': poseDataJson,
     });
   }
 
@@ -2515,6 +2619,8 @@ class ProgressPhotosCompanion extends UpdateCompanion<ProgressPhoto> {
     Value<DateTime>? createdAt,
     Value<String?>? notes,
     Value<double?>? bodyWeight,
+    Value<String?>? maskImagePath,
+    Value<String?>? poseDataJson,
   }) {
     return ProgressPhotosCompanion(
       id: id ?? this.id,
@@ -2522,6 +2628,8 @@ class ProgressPhotosCompanion extends UpdateCompanion<ProgressPhoto> {
       createdAt: createdAt ?? this.createdAt,
       notes: notes ?? this.notes,
       bodyWeight: bodyWeight ?? this.bodyWeight,
+      maskImagePath: maskImagePath ?? this.maskImagePath,
+      poseDataJson: poseDataJson ?? this.poseDataJson,
     );
   }
 
@@ -2543,6 +2651,12 @@ class ProgressPhotosCompanion extends UpdateCompanion<ProgressPhoto> {
     if (bodyWeight.present) {
       map['body_weight'] = Variable<double>(bodyWeight.value);
     }
+    if (maskImagePath.present) {
+      map['mask_image_path'] = Variable<String>(maskImagePath.value);
+    }
+    if (poseDataJson.present) {
+      map['pose_data_json'] = Variable<String>(poseDataJson.value);
+    }
     return map;
   }
 
@@ -2553,7 +2667,9 @@ class ProgressPhotosCompanion extends UpdateCompanion<ProgressPhoto> {
           ..write('imagePath: $imagePath, ')
           ..write('createdAt: $createdAt, ')
           ..write('notes: $notes, ')
-          ..write('bodyWeight: $bodyWeight')
+          ..write('bodyWeight: $bodyWeight, ')
+          ..write('maskImagePath: $maskImagePath, ')
+          ..write('poseDataJson: $poseDataJson')
           ..write(')'))
         .toString();
   }
@@ -5547,6 +5663,8 @@ typedef $$ProgressPhotosTableCreateCompanionBuilder =
       required DateTime createdAt,
       Value<String?> notes,
       Value<double?> bodyWeight,
+      Value<String?> maskImagePath,
+      Value<String?> poseDataJson,
     });
 typedef $$ProgressPhotosTableUpdateCompanionBuilder =
     ProgressPhotosCompanion Function({
@@ -5555,6 +5673,8 @@ typedef $$ProgressPhotosTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<String?> notes,
       Value<double?> bodyWeight,
+      Value<String?> maskImagePath,
+      Value<String?> poseDataJson,
     });
 
 class $$ProgressPhotosTableFilterComposer
@@ -5588,6 +5708,16 @@ class $$ProgressPhotosTableFilterComposer
 
   ColumnFilters<double> get bodyWeight => $composableBuilder(
     column: $table.bodyWeight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get maskImagePath => $composableBuilder(
+    column: $table.maskImagePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get poseDataJson => $composableBuilder(
+    column: $table.poseDataJson,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -5625,6 +5755,16 @@ class $$ProgressPhotosTableOrderingComposer
     column: $table.bodyWeight,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get maskImagePath => $composableBuilder(
+    column: $table.maskImagePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get poseDataJson => $composableBuilder(
+    column: $table.poseDataJson,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ProgressPhotosTableAnnotationComposer
@@ -5650,6 +5790,16 @@ class $$ProgressPhotosTableAnnotationComposer
 
   GeneratedColumn<double> get bodyWeight => $composableBuilder(
     column: $table.bodyWeight,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get maskImagePath => $composableBuilder(
+    column: $table.maskImagePath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get poseDataJson => $composableBuilder(
+    column: $table.poseDataJson,
     builder: (column) => column,
   );
 }
@@ -5692,12 +5842,16 @@ class $$ProgressPhotosTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<double?> bodyWeight = const Value.absent(),
+                Value<String?> maskImagePath = const Value.absent(),
+                Value<String?> poseDataJson = const Value.absent(),
               }) => ProgressPhotosCompanion(
                 id: id,
                 imagePath: imagePath,
                 createdAt: createdAt,
                 notes: notes,
                 bodyWeight: bodyWeight,
+                maskImagePath: maskImagePath,
+                poseDataJson: poseDataJson,
               ),
           createCompanionCallback:
               ({
@@ -5706,12 +5860,16 @@ class $$ProgressPhotosTableTableManager
                 required DateTime createdAt,
                 Value<String?> notes = const Value.absent(),
                 Value<double?> bodyWeight = const Value.absent(),
+                Value<String?> maskImagePath = const Value.absent(),
+                Value<String?> poseDataJson = const Value.absent(),
               }) => ProgressPhotosCompanion.insert(
                 id: id,
                 imagePath: imagePath,
                 createdAt: createdAt,
                 notes: notes,
                 bodyWeight: bodyWeight,
+                maskImagePath: maskImagePath,
+                poseDataJson: poseDataJson,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

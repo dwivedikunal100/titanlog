@@ -4,8 +4,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../database/app_database.dart';
 import '../../providers/database_providers.dart';
 import '../../../database/daos/workout_dao.dart';
-import '../../../database/app_database.dart';
-import '../../workout/widgets/set_row.dart'; // We can reuse set row if we pass id
 import 'package:drift/drift.dart' as drift;
 import '../../workout/providers/workout_providers.dart';
 import '../../exercises/screens/exercise_library_screen.dart';
