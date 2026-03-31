@@ -10,6 +10,8 @@ import 'package:titanlog/features/workout/providers/workout_providers.dart';
 import 'package:titanlog/features/exercises/screens/exercise_library_screen.dart';
 import 'package:titanlog/features/workout/widgets/set_row.dart';
 import 'package:titanlog/features/workout/widgets/rest_timer_overlay.dart';
+import 'package:titanlog/features/routines/providers/routine_providers.dart';
+import 'package:titanlog/features/routines/screens/routine_editor_screen.dart';
 
 class WorkoutScreen extends ConsumerStatefulWidget {
   const WorkoutScreen({super.key});
@@ -139,56 +141,165 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   }
 
   Widget _buildStartWorkoutView(BuildContext context) {
+    final routinesAsync = ref.watch(allRoutinesProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Workout')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryContainer.withValues(alpha: 0.3),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.fitness_center_rounded,
-                  size: 64,
-                  color: AppColors.primary,
-                ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.primaryContainer.withValues(alpha: 0.3),
+                shape: BoxShape.circle,
               ),
-              const SizedBox(height: 32),
-              Text(
-                'Ready to Train?',
-                style: Theme.of(context).textTheme.headlineMedium,
+              child: const Icon(
+                Icons.fitness_center_rounded,
+                size: 64,
+                color: AppColors.primary,
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Start an empty workout and add\nexercises as you go',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                    ),
-              ),
-              const SizedBox(height: 40),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () => _startWorkout(),
-                  icon: const Icon(Icons.play_arrow_rounded),
-                  label: const Text('Start Empty Workout'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Ready to Train?',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Start an empty workout or choose a routine',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.onSurfaceVariant,
                   ),
-                ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () => _startWorkout(),
+              icon: const Icon(Icons.play_arrow_rounded),
+              label: const Text('Start Empty Workout'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 48),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Your Routines', style: Theme.of(context).textTheme.titleLarge),
+                TextButton.icon(
+                  onPressed: () async {
+                    final newRoutineId = await ref.read(routineDaoProvider).createRoutine(
+                      RoutinesCompanion.insert(
+                        name: 'New Routine',
+                      ),
+                    );
+                    final newRoutine = await ref.read(routineDaoProvider).getRoutineById(newRoutineId);
+                    if (context.mounted) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => RoutineEditorScreen(routine: newRoutine),
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('New'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            routinesAsync.when(
+              data: (routines) {
+                if (routines.isEmpty) {
+                  return Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainer,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.surfaceContainerHigh),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'No routines yet. Create one to get started!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: AppColors.onSurfaceDim),
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: routines.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final routine = routines[index];
+                    return Card(
+                      color: AppColors.surfaceContainer,
+                      margin: EdgeInsets.zero,
+                      child: InkWell(
+                        onTap: () => _startWorkoutFromRoutine(routine.id, routine.name),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryContainer.withValues(alpha: 0.3),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(Icons.library_books, color: AppColors.primary),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  routine.name,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.edit, color: AppColors.onSurfaceVariant),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => RoutineEditorScreen(routine: routine),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('Error: $e')),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  void _startWorkoutFromRoutine(int routineId, String name) async {
+    HapticUtils.mediumImpact();
+    final id = await ref.read(activeWorkoutProvider.notifier).startWorkoutFromRoutine(routineId, customName: name);
+    final workout = await ref.read(workoutDaoProvider).getWorkoutById(id);
+    if (mounted) {
+      ref.read(workoutElapsedProvider.notifier).start(workout.startedAt);
+    }
   }
 
   Widget _buildEmptyWorkout(BuildContext context, int workoutId) {

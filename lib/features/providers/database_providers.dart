@@ -18,3 +18,7 @@ final workoutDaoProvider = Provider((ref) {
 final setDaoProvider = Provider((ref) {
   return ref.watch(databaseProvider).setDao;
 });
+
+final routineDaoProvider = Provider((ref) {
+  return ref.watch(databaseProvider).routineDao;
+});

@@ -11,19 +11,22 @@ import 'daos/exercise_dao.dart';
 import 'daos/workout_dao.dart';
 import 'daos/set_dao.dart';
 import 'daos/photo_dao.dart';
+import 'daos/routine_dao.dart';
+import 'tables/routines.dart';
+import 'tables/routine_exercises.dart';
 import 'seed/exercise_seed_data.dart';
 
 part 'app_database.g.dart';
 
 @DriftDatabase(
-  tables: [Exercises, Workouts, WorkoutExercises, ExerciseSets, PersonalRecords, ProgressPhotos],
-  daos: [ExerciseDao, WorkoutDao, SetDao, PhotoDao],
+  tables: [Exercises, Workouts, WorkoutExercises, ExerciseSets, PersonalRecords, ProgressPhotos, Routines, RoutineExercises],
+  daos: [ExerciseDao, WorkoutDao, SetDao, PhotoDao, RoutineDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'titanlog_db');
@@ -43,6 +46,10 @@ class AppDatabase extends _$AppDatabase {
         if (from < 3) {
           // Trigger seeding process to inject newly added exercises.
           await _seedExercises();
+        }
+        if (from < 4) {
+          await m.createTable(routines);
+          await m.createTable(routineExercises);
         }
       },
     );

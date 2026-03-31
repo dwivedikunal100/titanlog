@@ -9,11 +9,13 @@ import 'package:titanlog/features/exercises/providers/exercise_providers.dart';
 class ExerciseLibraryScreen extends ConsumerWidget {
   final bool selectionMode;
   final int? workoutId;
+  final int? routineId;
 
   const ExerciseLibraryScreen({
     super.key,
     this.selectionMode = false,
     this.workoutId,
+    this.routineId,
   });
 
   @override
@@ -255,14 +257,19 @@ class ExerciseLibraryScreen extends ConsumerWidget {
   }
 
   void _addSelectedToWorkout(BuildContext context, WidgetRef ref) async {
-    if (workoutId == null) return;
+    if (workoutId == null && routineId == null) return;
     final selectedIds = ref.read(selectedExerciseIdsProvider);
     if (selectedIds.isEmpty) return;
 
     HapticUtils.mediumImpact();
-    final dao = ref.read(workoutDaoProvider);
-    await dao.addMultipleExercisesToWorkout(
-        workoutId!, selectedIds.toList());
+    
+    if (workoutId != null) {
+      final dao = ref.read(workoutDaoProvider);
+      await dao.addMultipleExercisesToWorkout(workoutId!, selectedIds.toList());
+    } else if (routineId != null) {
+      final dao = ref.read(routineDaoProvider);
+      await dao.addMultipleExercisesToRoutine(routineId!, selectedIds.toList());
+    }
 
     ref.read(selectedExerciseIdsProvider.notifier).state = {};
 

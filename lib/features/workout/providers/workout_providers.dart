@@ -35,6 +35,66 @@ class ActiveWorkoutNotifier extends StateNotifier<Workout?> {
     return id;
   }
 
+  Future<int> startWorkoutFromRoutine(int routineId, {String? customName}) async {
+    final workoutDao = ref.read(workoutDaoProvider);
+    final routineDao = ref.read(routineDaoProvider);
+    final setDao = ref.read(setDaoProvider);
+
+    final routine = await routineDao.getRoutineById(routineId);
+    
+    final id = await workoutDao.createWorkout(
+      WorkoutsCompanion.insert(
+        name: Value(customName ?? routine.name),
+        startedAt: DateTime.now(),
+      ),
+    );
+
+    state = await workoutDao.getWorkoutById(id);
+
+    final routineExercises = await routineDao.getRoutineExercisesAsFuture(routineId);
+    
+    // Auto-populate
+    for (var i = 0; i < routineExercises.length; i++) {
+      final exc = routineExercises[i];
+      final workoutExerciseId = await workoutDao.addExerciseToWorkout(
+        WorkoutExercisesCompanion.insert(
+          workoutId: id,
+          exerciseId: exc.exercise.id,
+          orderIndex: Value(i),
+        )
+      );
+
+      final prevSets = await setDao.getLastWorkoutSetsForExercise(exc.exercise.id);
+      
+      if (prevSets.isEmpty) {
+        // Just insert 1 empty set
+        await setDao.insertSet(
+          ExerciseSetsCompanion.insert(
+            workoutExerciseId: workoutExerciseId,
+            setNumber: 1,
+            weight: const Value(0.0),
+            reps: const Value(0),
+          ),
+        );
+      } else {
+        // Insert history identically
+        for (var j = 0; j < prevSets.length; j++) {
+          final oldSet = prevSets[j];
+          await setDao.insertSet(
+            ExerciseSetsCompanion.insert(
+              workoutExerciseId: workoutExerciseId,
+              setNumber: j + 1,
+              weight: Value(oldSet.weight),
+              reps: Value(oldSet.reps),
+            ),
+          );
+        }
+      }
+    }
+
+    return id;
+  }
+
   Future<void> finishWorkout() async {
     if (state == null) return;
     final dao = ref.read(workoutDaoProvider);
